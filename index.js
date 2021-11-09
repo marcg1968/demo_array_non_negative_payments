@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const numArraysToGenerate = 10
+
 /**
  * TESTING - GENERATION OF DATA
  */
@@ -68,8 +70,10 @@ const dropsBelowZero = arr => {
 	return result
 }
 
-const outputResult = (arr, moves, finalArr, paymentsDeferred) => {
+const outputResult = (i, arr, moves, finalArr, paymentsDeferred) => {
 	finalArr = finalArr || false
+	console.log('\n' + '='.repeat(60))
+	console.log(`Test #${i}:`)
 	if (finalArr) {
 		console.log('Original balances: [', arr.join(', '), ']')
 		console.log('New order of balances with payments deferred to end: [', finalArr.join(', '), ']')
@@ -82,9 +86,8 @@ const outputResult = (arr, moves, finalArr, paymentsDeferred) => {
 }
 
 /* Generate some test arrays each with 12 payments whose sum is non-negative */
-let numArrays = 12
-let testSet = generateSetOfTestArrays(numArrays)
-console.log(`*** Test data: ${numArrays} arrays of monthly payments:`, { testData: testSet })
+let testSet = generateSetOfTestArrays(numArraysToGenerate)
+console.log(`*** Test data: ${numArraysToGenerate} arrays of monthly payments:`, { testData: testSet })
 console.log('-'.repeat(60))
 
 
@@ -95,7 +98,6 @@ about()
 let i = 0
 for (let arr of testSet) {
 	i++
-	console.log('\n' + `Test #${i}:`)
 	let numMoves = 0
 	let paymentsDeferred = [] /* payments deferred */
 	let maxMoves = arr.length
@@ -105,26 +107,26 @@ for (let arr of testSet) {
 
 	/* if result length is zero, no re-shuffle required */
 	if (Object.keys(result).length === 0) {
-		outputResult(arr, numMoves)
+		outputResult(i, arr, numMoves)
 		continue
 	}
 
-	/* move negative balances (payments) to end of year 
-	   until running total always non-negative */
+	/* move negative balances (payments) to end of year */
+	/* until running total always non-negative */
 	/* note: this mutates the array */
 
 	let _arr = [...arr] /* keep copy of original array */
 	let loop = true
 	while (loop) {
 		let pos = result.shift()
-		paymentsDeferred.push(arr[pos])
+		paymentsDeferred.push(arr[pos]) /* keep track of which payments are deferred */
 		arr.push(...arr.splice(pos, 1)) /* move to end of array */
 		numMoves += 1
 		result = dropsBelowZero(arr)
 
 		/* no more re-shuffling required so exit loop */
 		if (Object.keys(result).length === 0) {
-			outputResult(_arr, numMoves, arr, paymentsDeferred)
+			outputResult(i, _arr, numMoves, arr, paymentsDeferred)
         	        loop = false
 		}
 
