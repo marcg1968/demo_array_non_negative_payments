@@ -26,6 +26,12 @@ Clone the repository.
 On the command line issue the following:
 
 ```bash
-npm run
+npm start
+```
+
+OR
+
+```bash
+npm start | more
 ```
 
