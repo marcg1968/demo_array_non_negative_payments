@@ -1,0 +1,12 @@
+{
+  "name": "no-negative-balance",
+  "version": "1.0.0",
+  "description": "Generate a series of 12 element arrays simulating monthly balances",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
