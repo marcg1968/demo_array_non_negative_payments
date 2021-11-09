@@ -26,7 +26,6 @@ const generateSetOfTestArrays = n => {
 		let sum = total(arr)
 		if (sum < 0) continue
 		count++
-		//console.log({count, arr, sum}) }
 		result.push(arr)
 	}
 	return result
@@ -37,6 +36,17 @@ const generateSetOfTestArrays = n => {
 /**
  * MAIN APPLICATION FUNCTIONS
  */
+
+const about = () => {
+	console.log('*'.repeat(60))
+	console.log(`
+This is a simple demonstration of generating a number of arrays, each representing 
+the twelve (12) monthly end balances for a single year, in which if the running 
+total dips below zero, a negative monthly balance (outgoing payment) can be deferred 
+to the end of the year.
+`)
+	console.log('*'.repeat(60))
+}
 
 /**
  * return sum of array
@@ -52,26 +62,22 @@ const dropsBelowZero = arr => {
 	let result = []
 	arr.reduce((acc,curr,i,self) => {
 		acc += parseInt(curr) || 0
-		if (acc < 0) {
-			//console.log(`below zero at i=${i}`)
-			result.push(i)
-		}
-		//console.log(`running total: ${acc}`)
+		if (acc < 0) result.push(i)
 		return acc
 	}, 0)
 	return result
 }
 
-const outputResult = (arr, moves, finalArr, positions) => {
-	console.log(`No. of moves: ${moves}`)
+const outputResult = (arr, moves, finalArr, paymentsDeferred) => {
 	finalArr = finalArr || false
 	if (finalArr) {
 		console.log('Original balances: [', arr.join(', '), ']')
 		console.log('New order of balances with payments deferred to end: [', finalArr.join(', '), ']')
 	}
-	if (positions) console.log('Payments deferred: [', positions.join(', '), ']')
+	if (paymentsDeferred) console.log('Payments deferred: [', paymentsDeferred.join(', '), ']')
 	if (!finalArr) console.log('Balances: ', arr.join(', '))
 	console.log('Yearly total: ', total(arr))
+	console.log(`No. of moves: ${moves}`)
 	console.log('='.repeat(60))
 }
 
@@ -81,58 +87,50 @@ let testSet = generateSetOfTestArrays(numArrays)
 console.log(`*** Test data: ${numArrays} arrays of monthly payments:`, { testData: testSet })
 console.log('-'.repeat(60))
 
-//dropsBelowZero('blah') // test non array param
 
+/* Output what we are about */
+about() 
+
+/* iterate over test set data */
 let i = 0
 for (let arr of testSet) {
 	i++
 	console.log('\n' + `Test #${i}:`)
 	let numMoves = 0
-	let positions = [] /* payments deferred */
+	let paymentsDeferred = [] /* payments deferred */
 	let maxMoves = arr.length
 
-	/* get an array of position where running total is negative */
+	/* get an array of positions where running total is negative */
 	let result = dropsBelowZero(arr)
 
 	/* if result length is zero, no re-shuffle required */
 	if (Object.keys(result).length === 0) {
-		//console.log({arr, numMoves})
 		outputResult(arr, numMoves)
 		continue
 	}
 
-	/* move negative payments to end of year until running total always non-negative */
-	/* by mutating array */
+	/* move negative balances (payments) to end of year 
+	   until running total always non-negative */
+	/* note: this mutates the array */
 
-	let loop = true
 	let _arr = [...arr] /* keep copy of original array */
+	let loop = true
 	while (loop) {
 		let pos = result.shift()
-		positions.push(arr[pos])
-		//console.log(76, ':', arr.join(', '), {pos})
-		arr.push(...arr.splice(pos, 1))
-		//console.log(82, ':', arr.join(', '))
+		paymentsDeferred.push(arr[pos])
+		arr.push(...arr.splice(pos, 1)) /* move to end of array */
 		numMoves += 1
 		result = dropsBelowZero(arr)
+
+		/* no more re-shuffling required so exit loop */
 		if (Object.keys(result).length === 0) {
-	                //console.log({arr, numMoves})
-			outputResult(_arr, numMoves, arr, positions)
+			outputResult(_arr, numMoves, arr, paymentsDeferred)
         	        loop = false
 		}
+
 		/* prevent infinite loop in case of buggy logic */
 		loop = (numMoves > maxMoves) ? false : loop
         }
 	
 }
 
-
-/*
-
-arr = [
-     140, -40, -130, -190,
-       0,  50,  170, -120,
-    -130, -10,  170,  170
-  ]
-
-
-*/
