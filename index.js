@@ -101,6 +101,50 @@ let testSet = generateSetOfTestArrays(numArraysToGenerate)
 console.log(`*** Test data: ${numArraysToGenerate} arrays of monthly payments:`, { testData: testSet })
 console.log('-'.repeat(60))
 
+/**
+ * Takes an array (or "stream") of monthly balances and checks that in case of running balance being negative,
+ * the monthly balance (here an outgoing payments) is moved (or "deferred") to the end (of the year).
+ * @param arr array of monthly balances (or payments)
+ * @returns void
+ */
+const evaluateBalances = arr => {
+    let numMoves = 0,
+        paymentsDeferred = [], /* payments deferred */
+        maxMoves = arr.length,
+        result
+
+    /* get an array of positions where running total is negative */
+    result = dropsBelowZero(arr)
+
+    /* if result length is zero, no re-shuffle required */
+    if (Object.keys(result).length === 0) {
+        outputResult(i+1, arr, numMoves)
+        return
+    }
+
+    /* move negative balances (payments) to end of year */
+    /* until running total always non-negative */
+    /* note: this mutates the array */
+
+    let _arr = [...arr] /* keep copy of original array */
+    let loop = true
+    while (loop) {
+        result = dropsBelowZero(arr)
+        let pos = result.shift()
+        paymentsDeferred.push(arr[pos]) /* keep track of which payments are deferred */
+        arr.push(...arr.splice(pos, 1)) /* move to end of array */
+        numMoves += 1
+
+        /* no more re-shuffling required so exit loop */
+        if (Object.keys(result).length === 0) {
+            outputResult(i+1, _arr, numMoves, arr, paymentsDeferred)
+            loop = false
+        }
+
+        /* prevent infinite loop in case of buggy logic */
+        loop = (numMoves > maxMoves) ? false : loop
+    }
+}
 
 /* Output what we are about */
 about()
@@ -110,44 +154,8 @@ about()
 // for (let arr of testSet) {
 // 	i++
 for (let i=0; i<testSet.length;i++) {
-    let arr = [...testSet[i]],
-	    numMoves = 0,
-	    paymentsDeferred = [], /* payments deferred */
-	    maxMoves = arr.length,
-        result
-
-	/* get an array of positions where running total is negative */
-	result = dropsBelowZero(arr)
-
-	/* if result length is zero, no re-shuffle required */
-	if (Object.keys(result).length === 0) {
-		outputResult(i+1, arr, numMoves)
-		continue
-	}
-
-	/* move negative balances (payments) to end of year */
-	/* until running total always non-negative */
-	/* note: this mutates the array */
-
-	let _arr = [...arr] /* keep copy of original array */
-	let loop = true
-	while (loop) {
-        result = dropsBelowZero(arr)
-		let pos = result.shift()
-		paymentsDeferred.push(arr[pos]) /* keep track of which payments are deferred */
-		arr.push(...arr.splice(pos, 1)) /* move to end of array */
-		numMoves += 1
-
-		/* no more re-shuffling required so exit loop */
-		if (Object.keys(result).length === 0) {
-			outputResult(i+1, _arr, numMoves, arr, paymentsDeferred)
-            loop = false
-		}
-
-		/* prevent infinite loop in case of buggy logic */
-		loop = (numMoves > maxMoves) ? false : loop
-    }
-
+    let arr = [...testSet[i]]
+    evaluateBalances(arr)
 }
 
 /*
