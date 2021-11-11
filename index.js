@@ -15,7 +15,7 @@ const generateTestArray = () => [...Array(12).keys()]
 	.map(i => (Math.floor(Math.random() * -40) + 20) * 10)
 
 /**
- * Generate set of N arrays each containing of 12 integers, 
+ * Generate set of N arrays each containing of 12 integers,
  * each of which are multiples of 10 between -200 and 200
  * and whose sum is always positive or zero
  */
@@ -92,7 +92,7 @@ console.log('-'.repeat(60))
 
 
 /* Output what we are about */
-about() 
+about()
 
 /* iterate over test set data */
 let i = 0
@@ -132,7 +132,7 @@ for (let arr of testSet) {
 
 		/* prevent infinite loop in case of buggy logic */
 		loop = (numMoves > maxMoves) ? false : loop
-        }
-	
+    }
+
 }
 
