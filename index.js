@@ -81,13 +81,13 @@ const outputResult = (i, arr, moves, finalArr, paymentsDeferred) => {
 	console.log('='.repeat(60))
 }
 
+/* Output what we are about */
+about()
+
 /* Generate some test arrays each with 12 payments whose sum is non-negative */
 let testSet = generateSetOfTestArrays(numArraysToGenerate)
 console.log(`*** Test data: ${numArraysToGenerate} arrays of monthly payments:`, { testData: testSet })
 console.log('-'.repeat(60))
-
-/* Output what we are about */
-about()
 
 /* add special cases to generated test set */
 testSet.push([ -140, 80, -30, 70, 120, 60, -130, 50, 140, -20, 170, 0 ])
